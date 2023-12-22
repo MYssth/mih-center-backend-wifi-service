@@ -15,32 +15,77 @@ async function insertUser(path) {
 
     const temp = reader.utils.sheet_to_json(file.Sheets[file.SheetNames[0]]);
     temp.forEach(async (res) => {
-      // console.log(res);
       if (
         res.UWFINSDATE !== undefined &&
         res.UWFUSRNAM !== undefined &&
         res.UWFPASSWORD !== undefined
       ) {
+        // console.log(res);
         await pool
           .request()
-          .input("UWFINSDATE", sql.VarChar, res.UWFINSDATE)
+          .input("UWFINSDATE", sql.VarChar, `${res.UWFINSDATE}`)
           .input("UWFUSRNAM", sql.VarChar, res.UWFUSRNAM)
           .input("UWFPASSWORD", sql.VarChar, res.UWFPASSWORD)
           .query(
             "INSERT INTO USRWIFIV5PF" +
               " (UWFINSDATE" +
               ", UWFUSRNAM" +
-              ", UWFPASSWORD)" +
+              ", UWFPASSWORD" +
+              ", UWFHN" +
+              ", UWFVN" +
+              ", UWFSEQNO" +
+              ", UWFREGDTE" +
+              ", UWFPRTDTE" +
+              ", UWFPRTTIM" +
+              ", UWFREMARK" +
+              ", UWFSECNAM" +
+              ", UWFSECDTE" +
+              ", UWFSECTIM" +
+              ", UWFSECPGM" +
+              ", UWFSECNAML" +
+              ", UWFSECDTEL" +
+              ", UWFSECTIML)" +
               " VALUES" +
               " (@UWFINSDATE" +
               ", @UWFUSRNAM" +
-              ", @UWFPASSWORD)"
+              ", @UWFPASSWORD" +
+              ", 0" +
+              ", 0" +
+              ", 0" +
+              ", 0" +
+              ", 0" +
+              ", 0" +
+              ", ''" +
+              ", 0" +
+              ", 0" +
+              ", 0" +
+              ", ''" +
+              ", ''" +
+              ", 0" +
+              ", 0)"
           );
       }
     });
     console.log("insertUser complete");
     console.log("====================");
     return { status: "ok", message: "เพิ่มรหัส Wi-Fi เรียบร้อย" };
+  } catch (error) {
+    console.error(error);
+    return { status: "error", message: error.message };
+  }
+}
+
+async function countRemainVoucher() {
+  try {
+    console.log("countRemainVoucher call try connect to server");
+    let pool = await sql.connect(config);
+    console.log("connect complete");
+    const result = await pool
+      .request()
+      .query("SELECT COUNT(UWFHN) AS voucher FROM USRWIFIV5PF WHERE UWFHN=0");
+    console.log("countRemainVoucher complete");
+    console.log("====================");
+    return result.recordset[0];
   } catch (error) {
     console.error(error);
     return { status: "error", message: error.message };
@@ -58,5 +103,6 @@ async function getVersion() {
 
 module.exports = {
   insertUser: insertUser,
+  countRemainVoucher: countRemainVoucher,
   getVersion: getVersion,
 };

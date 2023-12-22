@@ -51,6 +51,18 @@ router.post('/insusr', upload.single('userWiFi'), function(request, response) {
     });
 });
 
+router.route("/cvoucher").get((request, response) => {
+  dboperations
+    .countRemainVoucher()
+    .then((result) => {
+      response.json(result);
+    })
+    .catch((err) => {
+      console.error(err);
+      response.setStatus(500);
+    });
+});
+
 router.route("/getversion").get((request, response) => {
   dboperations
     .getVersion()
